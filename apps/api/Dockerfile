@@ -9,16 +9,17 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 COPY --from=uv /uv /uvx /bin/
 WORKDIR /workspace
 
-COPY apps/api/pyproject.toml apps/api/uv.lock ./apps/api/
+COPY apps/api/pyproject.toml apps/api/uv.lock apps/api/README.md ./apps/api/
 WORKDIR /workspace/apps/api
-RUN uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev --no-install-project
 
 WORKDIR /workspace
 COPY --chown=10001:10001 apps/api/app ./apps/api/app
 COPY --chown=10001:10001 samples ./samples
 
 WORKDIR /workspace/apps/api
-RUN groupadd --system --gid 10001 supplyguard \
+RUN uv sync --frozen --no-dev \
+    && groupadd --system --gid 10001 supplyguard \
     && useradd --system --uid 10001 --gid supplyguard --no-create-home \
         --home-dir /nonexistent --shell /usr/sbin/nologin supplyguard \
     && mkdir -p /workspace/apps/api/data \

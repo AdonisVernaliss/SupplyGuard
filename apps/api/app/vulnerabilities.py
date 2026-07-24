@@ -9,6 +9,7 @@ from cvss import CVSS2, CVSS3, CVSS4, CVSSError
 from packageurl import PackageURL
 
 from app.models import Component, Severity, Vulnerability
+from app.version import APP_VERSION
 
 
 class VulnerabilityProviderError(RuntimeError):
@@ -107,7 +108,7 @@ class OsvVulnerabilityProvider(VulnerabilityProvider):
             async with httpx.AsyncClient(
                 base_url=self.base_url,
                 timeout=self.timeout_seconds,
-                headers={"User-Agent": "SupplyGuard/0.2"},
+                headers={"User-Agent": f"SupplyGuard/{APP_VERSION}"},
                 transport=self.transport,
             ) as client:
                 component_vulnerability_ids, query_complete = await _query_vulnerability_ids(

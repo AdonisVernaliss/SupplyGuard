@@ -1,6 +1,6 @@
 [project]
 name = "supplyguard-api"
-version = "0.2.0"
+version = "0.3.0"
 description = "CycloneDX SBOM validation and vulnerability analysis API for SupplyGuard"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -16,6 +16,16 @@ dependencies = [
     "sqlalchemy>=2.0.40,<3.0.0",
     "uvicorn[standard]>=0.35.0,<1.0.0",
 ]
+
+[project.scripts]
+supplyguard = "app.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
 
 [dependency-groups]
 dev = [

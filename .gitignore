@@ -14,5 +14,6 @@ dist/
 coverage/
 .coverage
 .coverage.*
+*.sarif
 playwright-report/
 test-results/

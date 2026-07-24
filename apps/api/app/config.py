@@ -2,10 +2,12 @@ from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.version import APP_VERSION
+
 
 class Settings(BaseSettings):
     app_name: str = "SupplyGuard API"
-    app_version: str = "0.2.0"
+    app_version: str = APP_VERSION
     environment: str = "development"
     database_url: str = "sqlite:///./data/supplyguard.db"
     cors_origins: str = "http://localhost:5173,http://localhost:3000"

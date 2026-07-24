@@ -7,7 +7,7 @@ def test_health_exposes_supported_profile() -> None:
     with TestClient(app) as client:
         response = client.get("/api/v1/health")
     assert response.status_code == 200
-    assert response.json()["version"] == "0.2.0"
+    assert response.json()["version"] == "0.3.0"
     assert response.json()["supportedProfile"] == {
         "id": "BSI TR-03183-2",
         "version": "2.1.0",
