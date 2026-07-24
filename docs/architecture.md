@@ -46,11 +46,12 @@ The SvelteKit client:
 ## Data flow
 
 1. The API enforces the upload-size limit before parsing.
-2. The parser rejects invalid encoding, invalid JSON, and non-object roots.
-3. The deterministic profile validator produces machine-readable finding codes.
-4. Only components with a package URL are sent to OSV.
-5. The provider result is combined with—not written into—the SBOM.
-6. The complete analysis report is persisted and returned.
+2. The parser rejects invalid encoding, invalid JSON, excessive JSON nesting, and non-object roots.
+3. Components are traversed iteratively under count and depth limits, and supported documents are checked against the bundled CycloneDX schema.
+4. The deterministic BSI profile validator produces machine-readable finding codes.
+5. Components with valid package URLs are selected before the scan limit is applied.
+6. OSV pagination, package-specific affected data, CVSS, and detail completeness are normalized into the report.
+7. The provider result is combined with—not written into—the SBOM, then persisted and returned.
 
 ## Deployment
 

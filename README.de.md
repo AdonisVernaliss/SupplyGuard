@@ -18,6 +18,14 @@ SupplyGuard ist ein eigenständig entwickelter Arbeitsbereich für SBOM-Sicherhe
 
 Das Profil ist in [`apps/api/app/profile.py`](apps/api/app/profile.py) deklariert und Bestandteil des Health-Endpunkts, jeder Analyse und der lokalisierten Berichte. Details und Grenzen stehen in [`docs/bsi-profile.md`](docs/bsi-profile.md).
 
+## Integrität der Analyse
+
+- CycloneDX-1.6- und 1.7-Dokumente werden zur Laufzeit gegen die gebündelten offiziellen JSON-Schemata geprüft.
+- Der Komponentenbaum wird iterativ mit konfigurierbaren Grenzen für Anzahl und Tiefe verarbeitet.
+- Die OSV-Schwere basiert auf dem passenden `affected[].severity` oder auf CVSS v2/v3/v4; qualitative Metadaten dienen als Rückfalloption.
+- Behobene Versionen stammen ausschließlich aus dem zum geprüften Paket passenden `affected`-Eintrag.
+- Der Bericht weist prüfbare und tatsächlich geprüfte Komponenten sowie Limits, Kürzungen und unvollständige OSV-Daten ausdrücklich aus.
+
 ## Lokal starten
 
 Voraussetzungen: Python 3.12+, [uv](https://docs.astral.sh/uv/), Node.js 22+.
@@ -36,6 +44,8 @@ npm run dev
 
 Öffnen Sie `http://localhost:5173`. Die API-Dokumentation liegt unter `http://localhost:8000/docs`.
 
+Die Betriebsgrenzen lassen sich über `SUPPLYGUARD_MAX_COMPONENT_COUNT`, `SUPPLYGUARD_MAX_COMPONENT_DEPTH`, `SUPPLYGUARD_MAX_SCANNED_COMPONENTS`, `SUPPLYGUARD_MAX_OSV_PAGES` und `SUPPLYGUARD_MAX_OSV_DETAILS` konfigurieren.
+
 ## Docker
 
 ```bash
@@ -48,7 +58,7 @@ Weboberfläche: `http://localhost:3000`, API: `http://localhost:8000`.
 
 ```bash
 cd apps/api
-uv run pytest
+uv run pytest --cov=app --cov-report=term-missing --cov-fail-under=85
 uv run ruff check .
 uv run ruff format --check .
 
@@ -56,6 +66,8 @@ cd ../web
 npm run check
 npm run build
 ```
+
+Die API-Tests enthalten fest auf einen Commit gesetzte CycloneDX-1.6- und 1.7-Dateien aus dem offiziellen Testbestand von [`CycloneDX/sbom-utility`](https://github.com/CycloneDX/sbom-utility). Commit, Prüfsummen und Lizenz sind in [`apps/api/tests/fixtures/upstream/README.md`](apps/api/tests/fixtures/upstream/README.md) dokumentiert.
 
 Weitere Dokumentation: [`docs/architecture.md`](docs/architecture.md) · [`docs/threat-model.md`](docs/threat-model.md)
 

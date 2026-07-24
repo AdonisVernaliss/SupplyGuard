@@ -18,6 +18,14 @@ SupplyGuard — самостоятельно разработанный прое
 
 Профиль объявлен в [`apps/api/app/profile.py`](apps/api/app/profile.py) и возвращается health-методом, каждым анализом и локализованными отчётами. Реализованные правила и ограничения описаны в [`docs/bsi-profile.md`](docs/bsi-profile.md).
 
+## Достоверность анализа
+
+- Документы CycloneDX 1.6 и 1.7 во время анализа проверяются по встроенным официальным JSON-схемам.
+- Дерево компонентов обходится итеративно с настраиваемыми ограничениями количества и глубины.
+- Критичность OSV определяется по соответствующему пакету в `affected[].severity` либо по CVSS v2/v3/v4 верхнего уровня; качественные метаданные используются как резервный источник.
+- Исправленные версии берутся только из записи `affected`, соответствующей проверяемому пакету.
+- Отчёт явно показывает доступные и фактически проверенные компоненты, достижение лимита, усечение и неполные данные OSV.
+
 ## Локальный запуск
 
 Потребуются Python 3.12+, [uv](https://docs.astral.sh/uv/) и Node.js 22+.
@@ -38,6 +46,8 @@ npm run dev
 
 Встроенное демо работает без сети. Загруженные SBOM по умолчанию проверяются через OSV; для автономной проверки выберите офлайн-источник.
 
+Ограничения настраиваются переменными `SUPPLYGUARD_MAX_COMPONENT_COUNT`, `SUPPLYGUARD_MAX_COMPONENT_DEPTH`, `SUPPLYGUARD_MAX_SCANNED_COMPONENTS`, `SUPPLYGUARD_MAX_OSV_PAGES` и `SUPPLYGUARD_MAX_OSV_DETAILS`.
+
 ## Docker
 
 ```bash
@@ -50,7 +60,7 @@ docker compose up --build
 
 ```bash
 cd apps/api
-uv run pytest
+uv run pytest --cov=app --cov-report=term-missing --cov-fail-under=85
 uv run ruff check .
 uv run ruff format --check .
 
@@ -58,6 +68,8 @@ cd ../web
 npm run check
 npm run build
 ```
+
+В API-тесты включены зафиксированные на конкретном коммите файлы CycloneDX 1.6 и 1.7 из официального набора [`CycloneDX/sbom-utility`](https://github.com/CycloneDX/sbom-utility). Коммит, контрольные суммы и лицензия указаны в [`apps/api/tests/fixtures/upstream/README.md`](apps/api/tests/fixtures/upstream/README.md).
 
 Дополнительная документация: [`docs/architecture.md`](docs/architecture.md) · [`docs/threat-model.md`](docs/threat-model.md)
 

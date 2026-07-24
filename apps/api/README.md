@@ -2,9 +2,17 @@
 
 FastAPI service for CycloneDX JSON parsing, **BSI TR-03183-2 v2.1.0** profile checks, OSV vulnerability lookup, report persistence, and EN/DE/RU JSON export.
 
+The API performs local CycloneDX schema validation, bounded iterative component traversal, package-aware CVSS and fixed-version extraction, OSV pagination, and explicit scan-completeness reporting.
+
 ```bash
 uv sync --dev
 uv run uvicorn app.main:app --reload
+```
+
+Tests and the enforced coverage threshold:
+
+```bash
+uv run pytest --cov=app --cov-report=term-missing --cov-fail-under=85
 ```
 
 OpenAPI: `http://localhost:8000/docs` · Health/profile: `http://localhost:8000/api/v1/health`

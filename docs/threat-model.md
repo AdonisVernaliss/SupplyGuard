@@ -26,14 +26,14 @@ flowchart LR
 | Threat | Current control | Follow-up |
 | --- | --- | --- |
 | Oversized upload / memory exhaustion | 5 MiB hard limit before parsing | streaming parser and reverse-proxy limits |
-| Malformed or non-UTF-8 input | strict parser with controlled 422 errors | JSON Schema validation |
-| Deeply nested component structures | recursive traversal | explicit depth/component limits before traversal |
+| Malformed or non-UTF-8 input | strict parser, bundled CycloneDX schema validation, controlled errors | reverse-proxy content inspection |
+| Deeply nested component structures | iterative traversal with explicit depth and component limits | streaming parser for substantially larger uploads |
 | SSRF through SBOM URLs | SupplyGuard never fetches component URLs | keep URL fetching disabled or allowlist destinations |
-| OSV abuse / request amplification | maximum scanned component count; detail request semaphore; timeout | rate limiting, cache, circuit breaker |
+| OSV abuse / request amplification | component, page, and detail limits; bounded detail batches; timeout; explicit partial-result state | rate limiting, cache, circuit breaker |
 | Sensitive SBOM disclosure | database remains internal in Compose | authentication, authorization, encryption, retention |
 | Stored script injection | Svelte escapes rendered values; no raw HTML | add CSP and security headers at deployment edge |
 | Embedded mutable vulnerability data | explicit `SG007` profile error | separate VEX/CSAF export |
-| Dependency compromise | lockfiles, CI checks | automated dependency review and signed images |
+| Dependency compromise | lockfiles, pinned container digests and Actions, Python/npm audits, PR dependency review | signed images and provenance policy |
 | Report tampering | immutable analysis ID in MVP | signing/attestation and audit log |
 
 ## Privacy
