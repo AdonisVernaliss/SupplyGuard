@@ -64,6 +64,9 @@ class Vulnerability(ApiModel):
     component_name: str
     installed_version: str | None = None
     severity: Severity = Severity.UNKNOWN
+    cvss_score: float | None = None
+    cvss_vector: str | None = None
+    severity_source: str | None = None
     summary: str
     aliases: list[str] = Field(default_factory=list)
     fixed_versions: list[str] = Field(default_factory=list)
@@ -83,6 +86,13 @@ class DocumentMetadata(ApiModel):
 class AnalysisSummary(ApiModel):
     component_count: int
     scannable_component_count: int
+    scanned_component_count: int = 0
+    scan_limit: int = 0
+    scan_truncated: bool = False
+    vulnerability_data_complete: bool = False
+    vulnerability_detail_failure_count: int = 0
+    vulnerability_detail_limit: int = 0
+    vulnerability_details_truncated: bool = False
     vulnerability_count: int
     critical_count: int
     high_count: int

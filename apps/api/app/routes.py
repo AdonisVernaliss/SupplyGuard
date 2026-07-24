@@ -51,6 +51,8 @@ async def create_analysis(
             filename=file.filename or "uploaded.cdx.json",
             provider=vulnerability_provider,
             max_scanned_components=settings.max_scanned_components,
+            max_component_count=settings.max_component_count,
+            max_component_depth=settings.max_component_depth,
         )
     except BomParseError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -71,6 +73,8 @@ async def create_demo_analysis(
         filename="demo-shop.cdx.json",
         provider=DemoVulnerabilityProvider(),
         max_scanned_components=settings.max_scanned_components,
+        max_component_count=settings.max_component_count,
+        max_component_depth=settings.max_component_depth,
     )
     save_report(session, report)
     return report
@@ -119,4 +123,6 @@ def _provider(name: str, settings: Settings) -> VulnerabilityProvider:
     return OsvVulnerabilityProvider(
         base_url=settings.osv_base_url,
         timeout_seconds=settings.osv_timeout_seconds,
+        max_pages=settings.max_osv_pages,
+        max_details=settings.max_osv_details,
     )

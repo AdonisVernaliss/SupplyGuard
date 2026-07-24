@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_name: str = "SupplyGuard API"
-    app_version: str = "0.1.0"
+    app_version: str = "0.2.0"
     environment: str = "development"
     database_url: str = "sqlite:///./data/supplyguard.db"
     cors_origins: str = "http://localhost:5173,http://localhost:3000"
@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     osv_timeout_seconds: float = 20.0
     max_upload_bytes: int = 5 * 1024 * 1024
     max_scanned_components: int = 200
+    max_component_count: int = 10_000
+    max_component_depth: int = 100
+    max_osv_pages: int = 20
+    max_osv_details: int = 1_000
 
     model_config = SettingsConfigDict(
         env_file=".env",

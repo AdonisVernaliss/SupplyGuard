@@ -7,6 +7,7 @@ def test_health_exposes_supported_profile() -> None:
     with TestClient(app) as client:
         response = client.get("/api/v1/health")
     assert response.status_code == 200
+    assert response.json()["version"] == "0.2.0"
     assert response.json()["supportedProfile"] == {
         "id": "BSI TR-03183-2",
         "version": "2.1.0",
@@ -29,6 +30,10 @@ def test_demo_analysis_and_russian_report() -> None:
         assert report["profile"]["version"] == "2.1.0"
         assert report["profile"]["mappingVersion"] == "1.6"
         assert report["summary"]["componentCount"] == 4
+        assert report["summary"]["scannableComponentCount"] == 4
+        assert report["summary"]["scannedComponentCount"] == 4
+        assert report["summary"]["scanTruncated"] is False
+        assert report["summary"]["vulnerabilityDataComplete"] is True
         assert report["summary"]["vulnerabilityCount"] == 2
         assert report["summary"]["complianceScore"] == 100
         assert report["provider"] == "demo-fixtures"

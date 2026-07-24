@@ -21,7 +21,12 @@ BSI_PROPERTY_VALUES = {
 }
 
 
-def validate_bom(document: dict[str, Any], components: list[Component]) -> list[ValidationFinding]:
+def validate_bom(
+    document: dict[str, Any],
+    components: list[Component],
+    max_component_count: int = 10_000,
+    max_component_depth: int = 100,
+) -> list[ValidationFinding]:
     """Validate the CycloneDX mapping defined by BSI TR-03183-2 v2.1.0.
 
     The BSI mapping is based on CycloneDX 1.6. SupplyGuard also accepts 1.7
@@ -111,7 +116,11 @@ def validate_bom(document: dict[str, Any], components: list[Component]) -> list[
     }
     dependency_refs = _dependency_graph_refs(document)
 
-    for path, component in raw_components_with_paths(document):
+    for path, component in raw_components_with_paths(
+        document,
+        max_component_count=max_component_count,
+        max_component_depth=max_component_depth,
+    ):
         _validate_component(
             component=component,
             path=path,
@@ -372,7 +381,15 @@ def _has_completeness(document: dict[str, Any], bom_ref: str) -> bool:
             continue
         if composition.get("aggregate") not in {"complete", "incomplete", "unknown"}:
             continue
-        refs = composition.get("assemblies", []) + composition.get("dependencies", [])
+        assemblies = composition.get("assemblies")
+        dependencies = composition.get("dependencies")
+        refs = [
+            reference
+            for values in (assemblies, dependencies)
+            if isinstance(values, list)
+            for reference in values
+            if isinstance(reference, str)
+        ]
         if bom_ref in refs:
             return True
     return False

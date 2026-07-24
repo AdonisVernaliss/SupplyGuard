@@ -1,5 +1,4 @@
 import json
-from collections.abc import Iterable
 from typing import Any
 
 from app.models import Component, DocumentMetadata
@@ -7,6 +6,10 @@ from app.models import Component, DocumentMetadata
 
 class BomParseError(ValueError):
     """Raised when an uploaded document cannot be parsed as a CycloneDX JSON BOM."""
+
+
+DEFAULT_MAX_COMPONENT_COUNT = 10_000
+DEFAULT_MAX_COMPONENT_DEPTH = 100
 
 
 def parse_json_bom(payload: bytes) -> dict[str, Any]:
@@ -19,6 +22,8 @@ def parse_json_bom(payload: bytes) -> dict[str, Any]:
         document = json.loads(decoded)
     except json.JSONDecodeError as exc:
         raise BomParseError(f"Invalid JSON at line {exc.lineno}, column {exc.colno}.") from exc
+    except RecursionError as exc:
+        raise BomParseError("The SBOM JSON nesting is too deep.") from exc
 
     if not isinstance(document, dict):
         raise BomParseError("The SBOM root must be a JSON object.")
@@ -38,21 +43,18 @@ def extract_document_metadata(document: dict[str, Any], filename: str) -> Docume
     )
 
 
-def extract_components(document: dict[str, Any]) -> list[Component]:
-    metadata = document.get("metadata") if isinstance(document.get("metadata"), dict) else {}
-    primary = metadata.get("component") if isinstance(metadata.get("component"), dict) else None
-    top_level = document.get("components")
-    component_items: list[dict[str, Any]] = []
-    if primary:
-        component_items.append(primary)
-    if isinstance(top_level, list):
-        component_items.extend(_walk_components(top_level))
+def extract_components(
+    document: dict[str, Any],
+    max_component_count: int = DEFAULT_MAX_COMPONENT_COUNT,
+    max_component_depth: int = DEFAULT_MAX_COMPONENT_DEPTH,
+) -> list[Component]:
+    component_items = list(_component_records(document, max_component_count, max_component_depth))
 
     direct_refs = _direct_dependency_refs(document)
     components: list[Component] = []
-    for index, raw_component in enumerate(component_items):
+    for path, raw_component in component_items:
         bom_ref = _string_or_none(raw_component.get("bom-ref"))
-        if index == 0 and primary is raw_component:
+        if path == "$.metadata.component":
             relationship = "root"
         elif direct_refs is None:
             relationship = "unknown"
@@ -84,39 +86,55 @@ def extract_components(document: dict[str, Any]) -> list[Component]:
 
 def raw_components_with_paths(
     document: dict[str, Any],
+    max_component_count: int = DEFAULT_MAX_COMPONENT_COUNT,
+    max_component_depth: int = DEFAULT_MAX_COMPONENT_DEPTH,
 ) -> list[tuple[str, dict[str, Any]]]:
-    result: list[tuple[str, dict[str, Any]]] = []
+    return list(_component_records(document, max_component_count, max_component_depth))
+
+
+def _component_records(
+    document: dict[str, Any],
+    max_component_count: int,
+    max_component_depth: int,
+):
+    if max_component_count < 1 or max_component_depth < 1:
+        raise BomParseError("Component traversal limits must be positive.")
+
+    count = 0
     metadata = document.get("metadata") if isinstance(document.get("metadata"), dict) else {}
     primary = metadata.get("component")
     if isinstance(primary, dict):
-        result.append(("$.metadata.component", primary))
+        count += 1
+        if count > max_component_count:
+            raise BomParseError(f"The SBOM exceeds the component limit of {max_component_count}.")
+        yield "$.metadata.component", primary
+
     top_level = document.get("components")
-    if isinstance(top_level, list):
-        result.extend(_walk_components_with_paths(top_level, "$.components"))
-    return result
+    if not isinstance(top_level, list):
+        return
 
-
-def _walk_components(items: Iterable[Any]) -> Iterable[dict[str, Any]]:
-    for item in items:
+    stack: list[tuple[Any, str, int]] = [
+        (item, f"$.components[{index}]", 1) for index, item in reversed(list(enumerate(top_level)))
+    ]
+    while stack:
+        item, path, depth = stack.pop()
         if not isinstance(item, dict):
             continue
-        yield item
-        nested = item.get("components")
-        if isinstance(nested, list):
-            yield from _walk_components(nested)
-
-
-def _walk_components_with_paths(
-    items: list[Any], base_path: str
-) -> Iterable[tuple[str, dict[str, Any]]]:
-    for index, item in enumerate(items):
-        if not isinstance(item, dict):
-            continue
-        path = f"{base_path}[{index}]"
+        if depth > max_component_depth:
+            raise BomParseError(
+                f"The SBOM exceeds the component nesting limit of {max_component_depth}."
+            )
+        count += 1
+        if count > max_component_count:
+            raise BomParseError(f"The SBOM exceeds the component limit of {max_component_count}.")
         yield path, item
+
         nested = item.get("components")
         if isinstance(nested, list):
-            yield from _walk_components_with_paths(nested, f"{path}.components")
+            stack.extend(
+                (child, f"{path}.components[{index}]", depth + 1)
+                for index, child in reversed(list(enumerate(nested)))
+            )
 
 
 def _direct_dependency_refs(document: dict[str, Any]) -> set[str] | None:

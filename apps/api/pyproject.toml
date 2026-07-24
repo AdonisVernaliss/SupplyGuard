@@ -1,12 +1,15 @@
 [project]
 name = "supplyguard-api"
-version = "0.1.0"
+version = "0.2.0"
 description = "CycloneDX SBOM validation and vulnerability analysis API for SupplyGuard"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "cvss>=3.6,<4.0",
+    "cyclonedx-python-lib[validation]>=11.5.0,<12.0.0",
     "fastapi>=0.116.0,<1.0.0",
     "httpx>=0.28.0,<1.0.0",
+    "packageurl-python>=0.17.6,<1.0.0",
     "psycopg[binary]>=3.2.0,<4.0.0",
     "pydantic-settings>=2.10.0,<3.0.0",
     "python-multipart>=0.0.20,<1.0.0",
@@ -18,6 +21,7 @@ dependencies = [
 dev = [
     "httpx2>=2.9.1",
     "pytest>=9.0.3,<10.0.0",
+    "pytest-cov>=7.1.0,<8.0.0",
     "ruff>=0.12.0,<1.0.0",
 ]
 

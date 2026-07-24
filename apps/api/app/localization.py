@@ -40,6 +40,11 @@ MESSAGES: dict[str, dict[str, str]] = {
         "de": "Entfernen Sie eingebettete Schwachstellendaten aus der SBOM und veröffentlichen Sie sie separat als VEX oder CSAF.",
         "ru": "Удалите данные об уязвимостях из SBOM и публикуйте их отдельно в формате VEX или CSAF.",
     },
+    "finding.schemaValidation": {
+        "en": "CycloneDX {version} schema validation failed: {reason}",
+        "de": "Die CycloneDX-{version}-Schemavalidierung ist fehlgeschlagen: {reason}",
+        "ru": "Проверка по схеме CycloneDX {version} не пройдена: {reason}",
+    },
     "finding.componentRefMissing": {
         "en": "{component} has no bom-ref for stable dependency relationships.",
         "de": "{component} hat keine bom-ref für stabile Abhängigkeitsbeziehungen.",
