@@ -12,5 +12,7 @@ node_modules/
 build/
 dist/
 coverage/
+.coverage
+.coverage.*
 playwright-report/
 test-results/
