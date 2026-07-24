@@ -25,6 +25,7 @@ The profile is declared in [`apps/api/app/profile.py`](apps/api/app/profile.py) 
 - OSV severity uses package-specific `affected[].severity` or top-level CVSS v2/v3/v4 data, with qualitative provider metadata as a fallback.
 - Fixed versions are taken only from the `affected` entry matching the scanned package.
 - Reports expose scannable, actually scanned, limited, truncated, and partial-data states. OSV pagination is followed and detail failures remain visible instead of being silently discarded.
+- The CLI runs the same pipeline without a server or database and can emit JSON or SARIF with CI policy exit codes.
 
 ## Quick start
 
@@ -47,6 +48,16 @@ Open `http://localhost:5173`. API documentation is available at `http://localhos
 The built-in demo does not need network access. Uploaded SBOMs use live OSV by default; select “Offline demo data” to test without an external request.
 
 Operational limits can be configured with the `SUPPLYGUARD_MAX_COMPONENT_COUNT`, `SUPPLYGUARD_MAX_COMPONENT_DEPTH`, `SUPPLYGUARD_MAX_SCANNED_COMPONENTS`, `SUPPLYGUARD_MAX_OSV_PAGES`, and `SUPPLYGUARD_MAX_OSV_DETAILS` environment variables.
+
+## CLI and CI
+
+```bash
+cd apps/api
+uv run supplyguard ../../samples/demo-shop.cdx.json --provider demo
+uv run supplyguard application.cdx.json --format sarif --output supplyguard.sarif --fail-on high --require-complete
+```
+
+The CLI returns `0` when policy passes, `1` when analysis succeeds but policy fails, and `2` for operational errors. It does not store reports in the database. See [`docs/cli.md`](docs/cli.md) for every option and the pinned GitHub Code Scanning workflow example.
 
 ## Docker
 
@@ -83,7 +94,7 @@ flowchart LR
     Scanner --> Report
 ```
 
-More detail: [`docs/architecture.md`](docs/architecture.md) · [`docs/threat-model.md`](docs/threat-model.md)
+More detail: [`docs/architecture.md`](docs/architecture.md) · [`docs/cli.md`](docs/cli.md) · [`docs/threat-model.md`](docs/threat-model.md) · [`CHANGELOG.md`](CHANGELOG.md)
 
 ## API
 
@@ -97,7 +108,7 @@ More detail: [`docs/architecture.md`](docs/architecture.md) · [`docs/threat-mod
 ## Repository layout
 
 ```text
-apps/api/       FastAPI service, validator, providers, tests
+apps/api/       FastAPI service, CLI, validator, providers, tests
 apps/web/       SvelteKit interface
 docs/           Profile mapping, architecture, threat model
 samples/        Deterministic CycloneDX 1.6 demo SBOM

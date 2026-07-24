@@ -25,6 +25,7 @@ SupplyGuard — самостоятельно разработанный прое
 - Критичность OSV определяется по соответствующему пакету в `affected[].severity` либо по CVSS v2/v3/v4 верхнего уровня; качественные метаданные используются как резервный источник.
 - Исправленные версии берутся только из записи `affected`, соответствующей проверяемому пакету.
 - Отчёт явно показывает доступные и фактически проверенные компоненты, достижение лимита, усечение и неполные данные OSV.
+- CLI запускает тот же анализ без сервера и базы данных и экспортирует JSON или SARIF со стабильными кодами завершения для CI.
 
 ## Локальный запуск
 
@@ -47,6 +48,16 @@ npm run dev
 Встроенное демо работает без сети. Загруженные SBOM по умолчанию проверяются через OSV; для автономной проверки выберите офлайн-источник.
 
 Ограничения настраиваются переменными `SUPPLYGUARD_MAX_COMPONENT_COUNT`, `SUPPLYGUARD_MAX_COMPONENT_DEPTH`, `SUPPLYGUARD_MAX_SCANNED_COMPONENTS`, `SUPPLYGUARD_MAX_OSV_PAGES` и `SUPPLYGUARD_MAX_OSV_DETAILS`.
+
+## CLI и CI
+
+```bash
+cd apps/api
+uv run supplyguard ../../samples/demo-shop.cdx.json --provider demo
+uv run supplyguard application.cdx.json --format sarif --output supplyguard.sarif --fail-on high --require-complete
+```
+
+CLI возвращает `0`, когда политика пройдена, `1`, когда анализ выполнен, но политика нарушена, и `2` при операционной ошибке. Отчёты в базу данных не записываются. Все параметры и пример GitHub Code Scanning находятся в [`docs/cli.md`](docs/cli.md).
 
 ## Docker
 
@@ -71,6 +82,6 @@ npm run build
 
 В API-тесты включены зафиксированные на конкретном коммите файлы CycloneDX 1.6 и 1.7 из официального набора [`CycloneDX/sbom-utility`](https://github.com/CycloneDX/sbom-utility). Коммит, контрольные суммы и лицензия указаны в [`apps/api/tests/fixtures/upstream/README.md`](apps/api/tests/fixtures/upstream/README.md).
 
-Дополнительная документация: [`docs/architecture.md`](docs/architecture.md) · [`docs/threat-model.md`](docs/threat-model.md)
+Дополнительная документация: [`docs/architecture.md`](docs/architecture.md) · [`docs/cli.md`](docs/cli.md) · [`docs/threat-model.md`](docs/threat-model.md) · [`CHANGELOG.md`](CHANGELOG.md)
 
 Лицензия: MIT

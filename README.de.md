@@ -25,6 +25,7 @@ Das Profil ist in [`apps/api/app/profile.py`](apps/api/app/profile.py) deklarier
 - Die OSV-Schwere basiert auf dem passenden `affected[].severity` oder auf CVSS v2/v3/v4; qualitative Metadaten dienen als Rückfalloption.
 - Behobene Versionen stammen ausschließlich aus dem zum geprüften Paket passenden `affected`-Eintrag.
 - Der Bericht weist prüfbare und tatsächlich geprüfte Komponenten sowie Limits, Kürzungen und unvollständige OSV-Daten ausdrücklich aus.
+- Die CLI nutzt dieselbe Analyse ohne Server oder Datenbank und kann JSON oder SARIF mit stabilen CI-Exit-Codes ausgeben.
 
 ## Lokal starten
 
@@ -45,6 +46,16 @@ npm run dev
 Öffnen Sie `http://localhost:5173`. Die API-Dokumentation liegt unter `http://localhost:8000/docs`.
 
 Die Betriebsgrenzen lassen sich über `SUPPLYGUARD_MAX_COMPONENT_COUNT`, `SUPPLYGUARD_MAX_COMPONENT_DEPTH`, `SUPPLYGUARD_MAX_SCANNED_COMPONENTS`, `SUPPLYGUARD_MAX_OSV_PAGES` und `SUPPLYGUARD_MAX_OSV_DETAILS` konfigurieren.
+
+## CLI und CI
+
+```bash
+cd apps/api
+uv run supplyguard ../../samples/demo-shop.cdx.json --provider demo
+uv run supplyguard application.cdx.json --format sarif --output supplyguard.sarif --fail-on high --require-complete
+```
+
+Exit-Code `0` bedeutet bestandene Richtlinie, `1` eine fehlgeschlagene Richtlinie nach erfolgreicher Analyse und `2` einen Betriebsfehler. Die CLI speichert keine Berichte in der Datenbank. Alle Optionen und ein GitHub-Code-Scanning-Beispiel stehen in [`docs/cli.md`](docs/cli.md).
 
 ## Docker
 
@@ -69,6 +80,6 @@ npm run build
 
 Die API-Tests enthalten fest auf einen Commit gesetzte CycloneDX-1.6- und 1.7-Dateien aus dem offiziellen Testbestand von [`CycloneDX/sbom-utility`](https://github.com/CycloneDX/sbom-utility). Commit, Prüfsummen und Lizenz sind in [`apps/api/tests/fixtures/upstream/README.md`](apps/api/tests/fixtures/upstream/README.md) dokumentiert.
 
-Weitere Dokumentation: [`docs/architecture.md`](docs/architecture.md) · [`docs/threat-model.md`](docs/threat-model.md)
+Weitere Dokumentation: [`docs/architecture.md`](docs/architecture.md) · [`docs/cli.md`](docs/cli.md) · [`docs/threat-model.md`](docs/threat-model.md) · [`CHANGELOG.md`](CHANGELOG.md)
 
 Lizenz: MIT

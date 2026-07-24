@@ -1,0 +1,42 @@
+name: SupplyGuard SBOM
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  SBOM_PATH: path/to/application.cdx.json
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - run: uv sync --project apps/api --frozen --no-dev
+      - name: Scan SBOM
+        id: supplyguard
+        continue-on-error: true
+        run: >-
+          uv run --project apps/api supplyguard "$SBOM_PATH"
+          --format sarif
+          --output supplyguard.sarif
+          --fail-on high
+          --fail-on-validation-errors
+          --require-complete
+      - name: Upload SARIF
+        if: always() && hashFiles('supplyguard.sarif') != ''
+        uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3
+        with:
+          sarif_file: supplyguard.sarif
+          category: supplyguard-sbom
+      - name: Enforce SupplyGuard policy
+        if: steps.supplyguard.outcome == 'failure'
+        run: exit 1

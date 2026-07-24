@@ -5,16 +5,19 @@ SupplyGuard is a small monorepo with an independently deployable API and web app
 ```mermaid
 flowchart TB
     User["User"] --> Web["SvelteKit web app"]
+    CI["CLI / CI"] --> Service["Analysis service"]
     Web -->|"multipart JSON upload"| API["FastAPI"]
-    API --> Parser["CycloneDX parser"]
-    Parser --> Profile["BSI TR-03183-2 v2.1.0 validator"]
-    Parser --> Provider{"Provider"}
+    API --> Service
+    Service --> Parser["CycloneDX parser"]
+    Service --> Profile["BSI TR-03183-2 v2.1.0 validator"]
+    Service --> Provider{"Provider"}
     Provider -->|"live"| OSV["OSV API"]
     Provider -->|"offline"| Fixtures["Demo fixtures"]
     Profile --> Report["Analysis report"]
     OSV --> Report
     Fixtures --> Report
     Report --> Store[("SQLAlchemy<br/>SQLite / PostgreSQL")]
+    Report --> Output["JSON / SARIF<br/>no persistence"]
     Store --> Web
 ```
 
@@ -27,6 +30,8 @@ The API is layered by responsibility:
 - `validator.py` evaluates profile rules without network access;
 - `vulnerabilities.py` contains replaceable live and demo providers;
 - `service.py` coordinates analysis and score generation;
+- `cli.py` applies CI policies and writes JSON or SARIF without persistence;
+- `sarif.py` maps findings and vulnerabilities to SARIF 2.1.0;
 - `repository.py` isolates persistence;
 - `routes.py` defines the HTTP contract;
 - `localization.py` renders finding messages in EN/DE/RU.
@@ -51,7 +56,8 @@ The SvelteKit client:
 4. The deterministic BSI profile validator produces machine-readable finding codes.
 5. Components with valid package URLs are selected before the scan limit is applied.
 6. OSV pagination, package-specific affected data, CVSS, and detail completeness are normalized into the report.
-7. The provider result is combined with—not written into—the SBOM, then persisted and returned.
+7. The provider result is combined with—not written into—the SBOM.
+8. HTTP analyses are persisted and returned; CLI analyses are written to stdout or a selected file without database access.
 
 ## Deployment
 

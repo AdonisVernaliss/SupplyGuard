@@ -30,7 +30,7 @@ flowchart LR
 | Deeply nested component structures | iterative traversal with explicit depth and component limits | streaming parser for substantially larger uploads |
 | SSRF through SBOM URLs | SupplyGuard never fetches component URLs | keep URL fetching disabled or allowlist destinations |
 | OSV abuse / request amplification | component, page, and detail limits; bounded detail batches; timeout; explicit partial-result state | rate limiting, cache, circuit breaker |
-| Sensitive SBOM disclosure | database remains internal in Compose | authentication, authorization, encryption, retention |
+| Sensitive SBOM disclosure | database remains internal in Compose; CLI mode does not persist reports | authentication, authorization, encryption, retention |
 | Stored script injection | Svelte escapes rendered values; no raw HTML | add CSP and security headers at deployment edge |
 | Embedded mutable vulnerability data | explicit `SG007` profile error | separate VEX/CSAF export |
 | Dependency compromise | lockfiles, pinned container digests and Actions, Python/npm audits, PR dependency review | signed images and provenance policy |
