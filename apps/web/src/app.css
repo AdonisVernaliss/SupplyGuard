@@ -692,6 +692,43 @@ a {
 	background: var(--amber);
 }
 
+.coverage-notice {
+	display: flex;
+	gap: 12px;
+	align-items: flex-start;
+	margin-top: 14px;
+	padding: 14px 16px;
+	border: 1px solid #eed8a7;
+	border-radius: 14px;
+	color: #6d5120;
+	background: #fff8e8;
+}
+
+.coverage-notice > span {
+	display: grid;
+	place-items: center;
+	width: 24px;
+	height: 24px;
+	flex: 0 0 auto;
+	border-radius: 8px;
+	color: #7b5616;
+	background: #ffe8ad;
+	font-size: 11px;
+	font-weight: 850;
+}
+
+.coverage-notice strong {
+	display: block;
+	margin-bottom: 3px;
+	font-size: 12px;
+}
+
+.coverage-notice p {
+	margin: 2px 0 0;
+	font-size: 11px;
+	line-height: 1.5;
+}
+
 .results-panel {
 	margin-top: 14px;
 	overflow: hidden;

@@ -329,13 +329,13 @@
 						<div class="score-copy">
 							<small>{t('risk')}</small>
 							<strong>{report.provider}</strong>
-							<span>{report.summary.scannableComponentCount} {t('scannable').toLowerCase()}</span>
+							<span>{report.summary.scannedComponentCount}/{report.summary.scannableComponentCount} {t('scanned').toLowerCase()}</span>
 						</div>
 					</div>
 					<div class="metric-card plain-metric">
 						<small>{t('components')}</small>
 						<div class="metric-value">{report.summary.componentCount}</div>
-						<div class="metric-foot"><span class="metric-dot"></span>{report.summary.scannableComponentCount} {t('scannable')}</div>
+						<div class="metric-foot"><span class="metric-dot"></span>{report.summary.scannedComponentCount}/{report.summary.scannableComponentCount} {t('scanned')}</div>
 					</div>
 					<div class="metric-card plain-metric">
 						<small>{t('vulnerabilities')}</small>
@@ -353,6 +353,17 @@
 						<div class="metric-foot"><span class="metric-dot amber"></span>CycloneDX {report.document.specVersion}</div>
 					</div>
 				</div>
+
+				{#if report.summary.scanTruncated || !report.summary.vulnerabilityDataComplete}
+					<div class="coverage-notice" role="status">
+						<span aria-hidden="true">!</span>
+						<div>
+							<strong>{t('partialResults')}</strong>
+							{#if report.summary.scanTruncated}<p>{t('componentLimitNotice')} ({report.summary.scannedComponentCount}/{report.summary.scannableComponentCount}, limit {report.summary.scanLimit})</p>{/if}
+							{#if !report.summary.vulnerabilityDataComplete}<p>{t('osvPartialNotice')} ({report.summary.vulnerabilityDetailFailureCount}{#if report.summary.vulnerabilityDetailsTruncated} · limit {report.summary.vulnerabilityDetailLimit}{/if})</p>{/if}
+						</div>
+					</div>
+				{/if}
 
 				<div class="results-panel">
 					<div class="tabs" role="tablist">
@@ -419,6 +430,7 @@
 											<div class="vulnerability-meta">
 												<span>{t('fixed')}: {vulnerability.fixedVersions.join(', ') || '—'}</span>
 												<span>{t('source')}: {vulnerability.source}</span>
+												{#if vulnerability.cvssScore !== null}<span>CVSS {vulnerability.cvssScore} · {vulnerability.severitySource}</span>{/if}
 											</div>
 										</div>
 										{#if vulnerability.references[0]}

@@ -44,6 +44,9 @@ export interface Vulnerability {
 	componentName: string;
 	installedVersion: string | null;
 	severity: Severity;
+	cvssScore: number | null;
+	cvssVector: string | null;
+	severitySource: string | null;
 	summary: string;
 	aliases: string[];
 	fixedVersions: string[];
@@ -54,6 +57,13 @@ export interface Vulnerability {
 export interface AnalysisSummary {
 	componentCount: number;
 	scannableComponentCount: number;
+	scannedComponentCount: number;
+	scanLimit: number;
+	scanTruncated: boolean;
+	vulnerabilityDataComplete: boolean;
+	vulnerabilityDetailFailureCount: number;
+	vulnerabilityDetailLimit: number;
+	vulnerabilityDetailsTruncated: boolean;
 	vulnerabilityCount: number;
 	criticalCount: number;
 	highCount: number;
