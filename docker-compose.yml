@@ -1,0 +1,52 @@
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: supplyguard
+      POSTGRES_USER: supplyguard
+      POSTGRES_PASSWORD: supplyguard-local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U supplyguard -d supplyguard"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - supplyguard-data:/var/lib/postgresql/data
+    networks:
+      - supplyguard
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      SUPPLYGUARD_DATABASE_URL: postgresql+psycopg://supplyguard:supplyguard-local@database:5432/supplyguard
+      SUPPLYGUARD_CORS_ORIGINS: http://localhost:3000
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    networks:
+      - supplyguard
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    environment:
+      PUBLIC_API_BASE_URL: http://localhost:8000
+      HOST: 0.0.0.0
+      PORT: 3000
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+    networks:
+      - supplyguard
+
+volumes:
+  supplyguard-data:
+
+networks:
+  supplyguard:

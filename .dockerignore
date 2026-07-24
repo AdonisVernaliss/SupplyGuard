@@ -1,0 +1,13 @@
+.git
+.github
+.env
+.DS_Store
+**/.venv
+**/node_modules
+**/.svelte-kit
+**/build
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+data
+*.db

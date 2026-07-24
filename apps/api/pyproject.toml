@@ -1,0 +1,37 @@
+[project]
+name = "supplyguard-api"
+version = "0.1.0"
+description = "CycloneDX SBOM validation and vulnerability analysis API for SupplyGuard"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.116.0,<1.0.0",
+    "httpx>=0.28.0,<1.0.0",
+    "psycopg[binary]>=3.2.0,<4.0.0",
+    "pydantic-settings>=2.10.0,<3.0.0",
+    "python-multipart>=0.0.20,<1.0.0",
+    "sqlalchemy>=2.0.40,<3.0.0",
+    "uvicorn[standard]>=0.35.0,<1.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.9.1",
+    "pytest>=9.0.3,<10.0.0",
+    "ruff>=0.12.0,<1.0.0",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"app/localization.py" = ["E501"]
