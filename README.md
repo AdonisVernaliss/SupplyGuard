@@ -2,9 +2,11 @@
 
 [Deutsch](README.de.md) · [Русский](README.ru.md)
 
-SupplyGuard is an independently developed SBOM security workspace. It validates CycloneDX JSON against the field mapping of **BSI TR-03183-2 v2.1.0**, queries [OSV](https://osv.dev/) for known vulnerabilities, and turns both results into a focused report.
+SupplyGuard is an SBOM security workspace. It validates CycloneDX JSON against the field mapping of **BSI TR-03183-2 v2.1.0**, queries [OSV](https://osv.dev/) for known vulnerabilities, and turns both results into a focused report.
 
 > SupplyGuard implements profile-aligned technical checks. It is not an official BSI certification tool.
+
+Version `0.3.0` is available from the `main` branch and is listed as unreleased in the [changelog](CHANGELOG.md).
 
 ## Current profile
 
@@ -29,12 +31,12 @@ The profile is declared in [`apps/api/app/profile.py`](apps/api/app/profile.py) 
 
 ## Quick start
 
-Requirements: Python 3.12+, [uv](https://docs.astral.sh/uv/), Node.js 22+.
+Use Python 3.13, [uv](https://docs.astral.sh/uv/), and Node.js 24 to match CI and the Docker images. The API package requires Python 3.12 or later.
 
 ```bash
 # Terminal 1 — API
 cd apps/api
-uv sync --dev
+uv sync --frozen --dev
 uv run uvicorn app.main:app --reload
 
 # Terminal 2 — web app
